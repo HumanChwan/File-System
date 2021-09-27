@@ -90,5 +90,9 @@ std::string Directory::path() const {
 
 // <------Destructor-------->
 Directory::~Directory() {
-  // following this Array of file and sub-directory Pointers will also be deleted
+  for (Directory* directory: m_directories)
+    delete directory;
+    
+  for (File* file: m_files)
+    delete file;
 }
