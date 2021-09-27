@@ -13,5 +13,5 @@ void Out::Base_Prompt(const std::string& path) {
 }
 
 void Out::Log(const std::string& message) {
-  std::cout << message << std::endl;
+  std::cout << message << "\n" << std::endl;
 }

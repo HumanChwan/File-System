@@ -14,7 +14,7 @@ Directory::Directory(Directory* parentDir, const std::string& dirname) {
 
 // <------Public Methods-------->
 bool Directory::find_file(const std::string& filename) const {
-  for (uint i = 0; i < m_files.length(); ++i) {
+  for (uint i = 0; i < m_files.size(); ++i) {
     if (m_files[i]->get_filename() == filename) {
       return true;
     }
@@ -24,13 +24,27 @@ bool Directory::find_file(const std::string& filename) const {
 }
 
 bool Directory::find_sub_directory(const std::string& dirname) const {
-  for (uint i = 0; i < m_files.length(); ++i) {
+  for (uint i = 0; i < m_directories.size(); ++i) {
     if (m_directories[i]->get_dirname() == dirname) {
       return true;
     }
   }
 
   return false;
+}
+
+Directory* Directory::get_dir(const std::string& dirname){
+  for (uint i = 0; i < m_directories.size(); ++i) {
+    if (m_directories[i]->get_dirname() == dirname) {
+      return m_directories[i];
+    }
+  }
+
+  return this;
+}
+
+Directory* Directory::parent() {
+  return m_parent;
 }
 
 void Directory::make_dir(const std::string& dirname) {
@@ -40,7 +54,7 @@ void Directory::make_dir(const std::string& dirname) {
 	}
 
 	Directory* new_dir = new Directory(this, dirname);
-	m_directories.append(new_dir);
+	m_directories.push_back(new_dir);
 }
 
 void Directory::touch(const std::string& filename) {
@@ -50,11 +64,24 @@ void Directory::touch(const std::string& filename) {
   }
 
   File* new_file = new File(filename, this);
-  m_files.append(new_file);
+  m_files.push_back(new_file);
 }
 
 std::string Directory::get_dirname() const {
   return m_dirname;
+}
+
+void Directory::list() const {
+  std::string list_all = "";
+  for (File* file : m_files) {
+    list_all += file->get_filename() + " ";
+  }
+
+  for (Directory* directory : m_directories) {
+    list_all += directory->get_dirname() + "/ ";
+  }
+
+  Out::Log(list_all);
 }
 
 std::string Directory::path() const {
