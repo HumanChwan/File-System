@@ -20,7 +20,7 @@ public:
 
 	size_t length() const;
 	T operator[](int index) const;
-	
+
 	~Array();
 };
 

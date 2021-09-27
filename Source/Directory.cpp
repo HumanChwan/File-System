@@ -1,6 +1,5 @@
 #include "../Header/Directory.h"
 
-
 // <------Constructor-------->
 Directory::Directory(Directory* parentDir, const std::string& dirname) {
   m_parent = parentDir;
@@ -44,6 +43,5 @@ void Directory::touch(const std::string& filename) {
 
 // <------Destructor-------->
 Directory::~Directory() {
-  delete &m_files;
-  delete &m_directories;
+  // following this Array of file and sub-directory Pointers will also be deleted
 }

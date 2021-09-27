@@ -1,4 +1,9 @@
 #include "../Header/Array.h"
+#include "../Header/File.h"
+#include "../Header/Directory.h"
+
+#include <iostream>
+
 
 // <------Private Methods-------->
 // Private Method to copy an array from an Array Class
@@ -43,5 +48,9 @@ T Array<T>::operator[](int index) const {
 // <------Destructor-------->
 template<class T>
 Array<T>::~Array() {
+	std::cout << "Destructed Array";
  delete m_array;
 }
+
+template class Array<File*>;
+template class Array<Directory*>;

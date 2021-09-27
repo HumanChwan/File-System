@@ -1,23 +1,18 @@
-#pragma once
+#ifndef FSFILE
+#define FSFILE
 
 #include <string>
 
 class File {
 	std::string m_filename;
 public:
-	File() {
-		// std::cout << "New File";
-	}
+	File();
 
-	File(const std::string& filename) {
-		m_filename = filename;
-	}
+	File(const std::string& filename);
 
-	std::string __str__() const {
-		return m_filename;
-	} 
+	std::string __str__() const;
 
-	~File() {
-		// std::cout << "Destructing File :" << m_filename;
-	}
+	~File();
 };
+
+#endif
