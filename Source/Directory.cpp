@@ -8,6 +8,8 @@ Directory::Directory(Directory* parentDir, const std::string& dirname) {
   m_path = "";
   if (parentDir != nullptr) {
     m_path = parentDir->path() + dirname;
+  } else {
+    m_parent = this;
   }
   m_path += "/";
 }
@@ -92,7 +94,7 @@ std::string Directory::path() const {
 Directory::~Directory() {
   for (Directory* directory: m_directories)
     delete directory;
-    
+
   for (File* file: m_files)
     delete file;
 }
