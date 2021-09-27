@@ -2,17 +2,25 @@
 #define FSFILE
 
 #include <string>
+#include "Out.h"
+
+class Directory;
 
 class File {
 	std::string m_filename;
+	Directory* m_parent_directory;
+
+	std::string m_filecontent;
 public:
-	File();
+	File(const std::string& filename, Directory* parent_dir);
 
-	File(const std::string& filename);
+	std::string get_filename() const;
 
-	std::string __str__() const;
+	std::string content() const;
 
-	~File();
+	void append_content(const std::string& new_content);
+
+	void overwrite_content(const std::string& new_content);
 };
 
 #endif

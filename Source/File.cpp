@@ -1,18 +1,25 @@
 #include "../Header/File.h"
+#include "../Header/Directory.h"
 
 
-File::File() {
- // std::cout << "New File";
-}
-
-File::File(const std::string& filename) {
+File::File(const std::string& filename, Directory* parent_dir) {
   m_filename = filename;
+  m_parent_directory = parent_dir;
+  m_filecontent = "";
 }
 
-std::string File::__str__() const {
+std::string File::get_filename() const {
   return m_filename;
 }
 
-File::~File() {
-  // std::cout << "Destructing File :" << m_filename;
+std::string File::content() const {
+  return m_filecontent;
+}
+
+void File::append_content(const std::string& new_content) {
+  m_filecontent += new_content;
+}
+
+void File::overwrite_content(const std::string& new_content) {
+  m_filecontent = new_content;
 }

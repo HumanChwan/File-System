@@ -4,12 +4,18 @@
 Directory::Directory(Directory* parentDir, const std::string& dirname) {
   m_parent = parentDir;
   m_dirname = dirname;
+
+  m_path = "";
+  if (parentDir != nullptr) {
+    m_path = parentDir->path() + dirname;
+  }
+  m_path += "/";
 }
 
 // <------Public Methods-------->
 bool Directory::find_file(const std::string& filename) const {
   for (uint i = 0; i < m_files.length(); ++i) {
-    if (m_files[i]->__str__() == filename) {
+    if (m_files[i]->get_filename() == filename) {
       return true;
     }
   }
@@ -17,13 +23,19 @@ bool Directory::find_file(const std::string& filename) const {
   return false;
 }
 
-bool Directory::find_directory(const std::string& dirname) const {
+bool Directory::find_sub_directory(const std::string& dirname) const {
+  for (uint i = 0; i < m_files.length(); ++i) {
+    if (m_directories[i]->get_dirname() == dirname) {
+      return true;
+    }
+  }
+
   return false;
 }
 
 void Directory::make_dir(const std::string& dirname) {
-	if (find_directory(dirname)) {
-		// LOG.ERROR("directory with same path already exists");
+	if (find_sub_directory(dirname)) {
+		Out::Error("directory with same path already exists");
 		return;
 	}
 
@@ -33,12 +45,20 @@ void Directory::make_dir(const std::string& dirname) {
 
 void Directory::touch(const std::string& filename) {
   if (find_file(filename)) {
-    // LOG.ERROR("file with same path already exists");
+    Out::Error("file with same path already exists");
     return;
   }
 
-  File* new_file = new File(filename);
+  File* new_file = new File(filename, this);
   m_files.append(new_file);
+}
+
+std::string Directory::get_dirname() const {
+  return m_dirname;
+}
+
+std::string Directory::path() const {
+  return m_path;
 }
 
 // <------Destructor-------->
