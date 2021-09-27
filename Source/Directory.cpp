@@ -16,8 +16,8 @@ Directory::Directory(Directory* parentDir, const std::string& dirname) {
 
 // <------Public Methods-------->
 bool Directory::find_file(const std::string& filename) const {
-  for (uint i = 0; i < m_files.size(); ++i) {
-    if (m_files[i]->get_filename() == filename) {
+  for (File* file : m_files) {
+    if (file->get_filename() == filename) {
       return true;
     }
   }
@@ -26,8 +26,8 @@ bool Directory::find_file(const std::string& filename) const {
 }
 
 bool Directory::find_sub_directory(const std::string& dirname) const {
-  for (uint i = 0; i < m_directories.size(); ++i) {
-    if (m_directories[i]->get_dirname() == dirname) {
+  for (Directory* directory : m_directories) {
+    if (directory->get_dirname() == dirname) {
       return true;
     }
   }
@@ -36,9 +36,9 @@ bool Directory::find_sub_directory(const std::string& dirname) const {
 }
 
 Directory* Directory::get_dir(const std::string& dirname){
-  for (uint i = 0; i < m_directories.size(); ++i) {
-    if (m_directories[i]->get_dirname() == dirname) {
-      return m_directories[i];
+  for (Directory* directory : m_directories) {
+    if (directory->get_dirname() == dirname) {
+      return directory;
     }
   }
 
