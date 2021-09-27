@@ -15,12 +15,12 @@ private:
 
 public:
 	Array();
+
 	void append(T element);
 
 	size_t length() const;
-
 	T operator[](int index) const;
-
+	
 	~Array();
 };
 
