@@ -12,6 +12,7 @@ Directory::Directory(Directory* parentDir, const std::string& dirname) {
 
         m_Path = parentDir->path() + dirname;
     } else {
+        m_Nodes.push_back(new Node(this, false, true));
         m_Parent = this;
     }
 
@@ -23,12 +24,12 @@ bool Directory::find_file(const std::string& filename) const {
     for (Node* node : m_Nodes) {
         switch (node->get_type()) {
             case NodeType::FILE_NODE:
-                if (node->get_data().file->get_filename() == filename) {
+                if (node->get_name() == filename) {
                     return true;
                 }
                 break;
             case NodeType::DIRECTORY_NODE:
-                if (node->get_data().directory->get_dirname() == filename) {
+                if (node->get_name() == filename) {
                     Out::Error(filename + ": is a directory");
                     return false;
                 }
@@ -40,6 +41,18 @@ bool Directory::find_file(const std::string& filename) const {
     }
 
     return false;
+}
+
+File* Directory::get_file(const std::string& filename) const {
+    for (Node* node : m_Nodes) {
+        if (node->get_name() == filename) {
+            if (node->get_type() == NodeType::FILE_NODE) {
+                return node->get_data().file;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 bool Directory::find_sub_directory(const std::string& dirname) const {

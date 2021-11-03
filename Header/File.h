@@ -23,6 +23,9 @@ class File {
     void append_content(const std::string& new_content);
 
     void overwrite_content(const std::string& new_content);
+
+    void operator=(std::string& buffer);
+    void operator+=(std::string& buffer);
 };
 
 #endif

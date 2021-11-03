@@ -23,6 +23,7 @@ class Directory {
     Directory(Directory* parentDir, const std::string& dirname);
 
     bool find_file(const std::string& filename) const;
+    File* get_file(const std::string& filename) const;
 
     bool find_sub_directory(const std::string& dirname) const;
 
