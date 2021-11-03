@@ -7,11 +7,14 @@ Directory::Directory(Directory* parentDir, const std::string& dirname) {
 
   m_path = "";
   if (parentDir != nullptr) {
+    m_directories.push_back(parentDir);
     m_path = parentDir->path() + dirname;
   } else {
     m_parent = this;
   }
   m_path += "/";
+
+
 }
 
 // <------Public Methods-------->

@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 
+class System;
+
 class Out {
 private:
 public:
@@ -11,7 +13,7 @@ public:
 
   static void Error(const std::string& message);
 
-  static void Base_Prompt(const std::string& path);
+  static void Base_Prompt(const std::string& state, const std::string& path);
 
   static void Log(const std::string& message);
 };

@@ -44,47 +44,24 @@ void Command::change_directory(const std::vector<std::string>& args) {
   }
 
   if (args.size() < 1) {
-    Out::Error("Missing necessary arguments.");
+    state->move_to_root();
     return;
   }
 
-  std::string temp = "";
+  std::vector<std::string> split_dir = FS::split(args[0], '/');
 
-  for (char x : args[0]) {
-    if (x == '/') {
-      if (temp == ".") {
-        continue;
-      } else if (temp == "..") {
-        state->present = state->present->parent();
-        continue;
-      }
-
-      if (!(state->present->find_sub_directory(temp))) {
-        Out::Error("Invalid Path");
-        return;
-      }
-
-      state->move_to_dir(temp);
-
-      temp = "";
+  for (std::string x : split_dir) {
+    if (x == ".") {
+      continue;
+    } else if (x == "..") {
+      state->present = state->present->parent();
+    } else if (state->present->find_sub_directory(x)) {
+      state->move_to_dir(x);
     } else {
-      temp += x;
+      Out::Error("Invalid Path");
+      return;
     }
   }
-
-  if (temp == ".") {
-    return;
-  } else if (temp == "..") {
-    state->present = state->present->parent();
-    return;
-  }
-
-  if (!(state->present->find_sub_directory(temp))) {
-    Out::Error("Invalid Path");
-    return;
-  }
-
-  state->move_to_dir(temp);
 }
 
 void Command::make_directory(const std::vector<std::string>& args) {

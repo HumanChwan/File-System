@@ -1,6 +1,7 @@
-cd Source
+# cd Source/Obj
 
-g++ -c *.cpp
-mv *.o ./Obj/
-cd Obj
-g++ *.o -o ../../fs.exe
+# g++ -c ../*.cpp
+# g++ *.o -o ../../../fs.exe
+echo "starting script"
+
+g++ ./Source/*.cpp -o fs.exe
