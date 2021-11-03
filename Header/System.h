@@ -9,23 +9,26 @@
 class Command;
 
 class System {
-private:
-	Directory *root;
-	bool live;
-	std::string user;
-public:
-	Directory* present;
-	System();
+   private:
+    Directory* root;
+    bool live;
+    std::string user;
 
-	void init();
+   public:
+    Directory* present;
+    System();
 
-	std::string get_user();
+    void init();
 
-	void move_to_dir(const std::string& dirname);
-	void move_to_dir(Directory& directory);
-	void move_to_root();
+    std::string get_user();
 
-	~System();
+    void move_to_dir(const std::string& dirname);
+    void move_to_dir(Directory& directory);
+    void move_to_root();
+
+    void exit();
+
+    ~System();
 };
 
 #endif

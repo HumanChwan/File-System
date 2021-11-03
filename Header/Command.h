@@ -7,16 +7,19 @@
 class System;
 
 class Command {
-private:
-  System* state;
-public:
-  Command(System* sys_state, const std::string& command);
+   private:
+    System* state;
 
-  void change_directory(const std::vector<std::string>& args);
+   public:
+    Command(System* sys_state, const std::string& command);
 
-  void make_directory(const std::vector<std::string>& args);
+    void change_directory(const std::vector<std::string>& args);
 
-  void list();
+    void make_directory(const std::vector<std::string>& args);
+
+    void list(const std::vector<std::string>& args);
+
+    void exit();
 };
 
 #endif

@@ -2,102 +2,117 @@
 
 // <------Constructor-------->
 Directory::Directory(Directory* parentDir, const std::string& dirname) {
-  m_parent = parentDir;
-  m_dirname = dirname;
+    m_Parent = parentDir;
+    m_Dirname = dirname;
 
-  m_path = "";
-  if (parentDir != nullptr) {
-    m_directories.push_back(parentDir);
-    m_path = parentDir->path() + dirname;
-  } else {
-    m_parent = this;
-  }
-  m_path += "/";
+    m_Path = "";
+    if (parentDir != nullptr) {
+        m_Nodes.push_back(new Node(parentDir, true));
+        m_Nodes.push_back(new Node(this, false, true));
 
+        m_Path = parentDir->path() + dirname;
+    } else {
+        m_Parent = this;
+    }
 
+    m_Path += "/";
 }
 
 // <------Public Methods-------->
 bool Directory::find_file(const std::string& filename) const {
-  for (File* file : m_files) {
-    if (file->get_filename() == filename) {
-      return true;
+    for (Node* node : m_Nodes) {
+        switch (node->get_type()) {
+            case NodeType::FILE_NODE:
+                if (node->get_data().file->get_filename() == filename) {
+                    return true;
+                }
+                break;
+            case NodeType::DIRECTORY_NODE:
+                if (node->get_data().directory->get_dirname() == filename) {
+                    Out::Error(filename + ": is a directory");
+                    return false;
+                }
+                break;
+            default:
+                Out::Error("FATAL ERROR");
+                return false;
+        }
     }
-  }
 
-  return false;
+    return false;
 }
 
 bool Directory::find_sub_directory(const std::string& dirname) const {
-  for (Directory* directory : m_directories) {
-    if (directory->get_dirname() == dirname) {
-      return true;
+    for (Node* node : m_Nodes) {
+        if (node->get_name() == dirname) {
+            if (node->get_type() == NodeType::DIRECTORY_NODE) {
+                return true;
+            }
+
+            Out::Error(dirname + ": is a file!");
+            return false;
+        }
     }
-  }
 
-  return false;
+    return false;
 }
 
-Directory* Directory::get_dir(const std::string& dirname){
-  for (Directory* directory : m_directories) {
-    if (directory->get_dirname() == dirname) {
-      return directory;
+Directory* Directory::get_dir(const std::string& dirname) {
+    for (Node* node : m_Nodes) {
+        if (node->get_name() == dirname) {
+            if (node->get_type() == NodeType::DIRECTORY_NODE) {
+                return node->get_data().directory;
+            }
+        }
     }
-  }
 
-  return this;
+    return this;
 }
 
-Directory* Directory::parent() {
-  return m_parent;
-}
+Directory* Directory::parent() { return m_Parent; }
 
 void Directory::make_dir(const std::string& dirname) {
-	if (find_sub_directory(dirname)) {
-		Out::Error("directory with same path already exists");
-		return;
-	}
+    if (find_sub_directory(dirname)) {
+        Out::Error("directory with same path already exists");
+        return;
+    }
 
-	Directory* new_dir = new Directory(this, dirname);
-	m_directories.push_back(new_dir);
+    Directory* new_dir = new Directory(this, dirname);
+    m_Nodes.push_back(new Node(new_dir));
 }
 
 void Directory::touch(const std::string& filename) {
-  if (find_file(filename)) {
-    Out::Error("file with same path already exists");
-    return;
-  }
+    if (find_file(filename)) {
+        Out::Error("file with same path already exists");
+        return;
+    }
 
-  File* new_file = new File(filename, this);
-  m_files.push_back(new_file);
+    File* new_file = new File(filename, this);
+    m_Nodes.push_back(new Node(new_file));
 }
 
-std::string Directory::get_dirname() const {
-  return m_dirname;
+std::string Directory::get_dirname() const { return m_Dirname; }
+
+void Directory::list(bool all_flag) const {
+    std::string list_all = "";
+    for (Node* node : m_Nodes) {
+        if (node->get_name()[0] == '.') {
+            if (!all_flag) continue;
+
+            list_all += node->get_name();
+        } else {
+            list_all += node->get_name();
+            if (node->get_type() == NodeType::DIRECTORY_NODE) list_all += "/";
+        }
+        list_all += " ";
+    }
+
+    Out::Log(list_all);
 }
 
-void Directory::list() const {
-  std::string list_all = "";
-  for (File* file : m_files) {
-    list_all += file->get_filename() + " ";
-  }
-
-  for (Directory* directory : m_directories) {
-    list_all += directory->get_dirname() + "/ ";
-  }
-
-  Out::Log(list_all);
-}
-
-std::string Directory::path() const {
-  return m_path;
-}
+std::string Directory::path() const { return m_Path; }
 
 // <------Destructor-------->
 Directory::~Directory() {
-  for (Directory* directory: m_directories)
-    delete directory;
-
-  for (File* file: m_files)
-    delete file;
+    for (Node* node : m_Nodes) delete node;
 }

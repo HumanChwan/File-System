@@ -2,9 +2,9 @@
 
 constexpr int MONKE = 0;
 
-int main () {
-	System system;
+int main() {
+    System system;
 
-	system.init();
-	return MONKE;
+    system.init();
+    return MONKE;
 }
