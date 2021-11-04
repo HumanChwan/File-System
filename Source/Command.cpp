@@ -5,10 +5,30 @@
 #include <string>
 #include <vector>
 
+#include "../Header/Directory.h"
 #include "../Header/File.h"
 #include "../Header/Out.h"
 #include "../Header/System.h"
 #include "../Header/util.h"
+
+Directory* Command::crawl(Directory* start,
+                          const std::vector<std::string>& path) {
+    Directory* crawler = start;
+    for (std::string sub_path : path) {
+        Directory* sub = crawler->get_dir(sub_path);
+        if (sub == nullptr) {
+            Out::Error("Directory not found");
+            return nullptr;
+        }
+        crawler = sub;
+    }
+
+    return crawler;
+}
+
+Directory* Command::crawl(Directory* start, const std::string& path) {
+    return crawl(start, FS::split(path, '/'));
+}
 
 Command::Command(System* sys_state, const std::string& command) {
     std::vector<std::string> split_commands = FS::split(command);
@@ -33,6 +53,8 @@ Command::Command(System* sys_state, const std::string& command) {
         touch(split_commands);
     } else if (base_command == "cat") {
         cat(split_commands);
+    } else if (base_command == "clear") {
+        clear();
     } else if (base_command == "exit") {
         exit();
     } else {
@@ -53,15 +75,7 @@ void Command::change_directory(const std::vector<std::string>& args) {
     }
 
     std::vector<std::string> split_dir = FS::split(args[0], '/');
-
-    for (std::string x : split_dir) {
-        if (state->present->find_sub_directory(x)) {
-            state->move_to_dir(x);
-        } else {
-            Out::Error("Invalid Path");
-            return;
-        }
-    }
+    state->move_to_dir(crawl(state->present, split_dir));
 }
 
 void Command::make_directory(const std::vector<std::string>& args) {
@@ -75,21 +89,16 @@ void Command::make_directory(const std::vector<std::string>& args) {
         return;
     }
 
-    // System* present_state = state;
+    std::vector<std::string> new_directory_path = FS::split(args[0], '/');
+    std::string new_directory_name = new_directory_path.back();
+    new_directory_path.pop_back();
 
-    std::string temp = "";
-    // "helo"
-    for (char x : args[0]) {
-        if (x == '/') {
-            state->move_to_dir(temp);
-            temp = "";
-        } else {
-            temp += x;
-        }
+    Directory* parent = crawl(state->present, new_directory_path);
+    if (parent == nullptr) {
+        return;
     }
 
-    state->present->make_dir(temp);
-    // state = present_state;
+    parent->make_dir(new_directory_name);
 }
 
 void Command::touch(const std::vector<std::string>& args) {
@@ -103,27 +112,36 @@ void Command::touch(const std::vector<std::string>& args) {
         return;
     }
 
-    std::string temp = "";
-    for (char x : args[0]) {
-        if (x == '/') {
-            state->move_to_dir(temp);
-            temp = "";
-        } else {
-            temp += x;
-        }
+    std::vector<std::string> new_file_path = FS::split(args[0], '/');
+    std::string new_file_name = new_file_path.back();
+    new_file_path.pop_back();
+
+    Directory* parent = crawl(state->present, new_file_path);
+    if (parent == nullptr) {
+        return;
     }
 
-    state->present->touch(temp);
+    parent->touch(new_file_name);
 }
 
 void Command::list(const std::vector<std::string>& args) {
     std::map<std::string, bool> flags;
+    std::string path = "";
 
     for (std::string flag : args) {
-        flags[flag] = true;
+        if (flag[0] == '-') {
+            flags[flag] = true;
+        } else {
+            path = flag;
+        }
     }
 
-    state->present->list(flags["-a"] || flags["--all"]);
+    Directory* directory = crawl(state->present, path);
+    if (directory == nullptr) {
+        return;
+    }
+
+    directory->list(flags["-a"] || flags["--all"]);
 }
 
 void Command::cat(const std::vector<std::string>& args) {
@@ -146,25 +164,47 @@ void Command::cat(const std::vector<std::string>& args) {
         }
     } else {
         // File to buffer
-        if (state->present->find_file(args[0])) {
-            File* file = state->present->get_file(args[0]);
-            buffer = file->content();
-        } else {
-            Out::Error("File not found");
+        std::vector<std::string> file_path = FS::split(args[0], '/');
+        std::string file_name = file_path.back();
+        file_path.pop_back();
+
+        Directory* parent = crawl(state->present, file_path);
+        if (parent == nullptr) {
+            return;
         }
+
+        File* file = parent->get_file(file_name);
+        if (file == nullptr) {
+            Out::Error("File not found");
+            return;
+        }
+
+        buffer = file->content();
     }
 
     if (stdout_cat) {
         Out::Log(buffer);
     } else {
         // buffer to file
-        if (state->present->find_file(args[1])) {
-            File* file = state->present->get_file(args[1]);
-            *file = buffer;
-        } else {
-            Out::Error("File not found");
+        std::vector<std::string> file_path = FS::split(args[1], '/');
+        std::string file_name = file_path.back();
+        file_path.pop_back();
+
+        Directory* parent = crawl(state->present, file_path);
+        if (parent == nullptr) {
+            return;
         }
+
+        File* file = parent->get_file(file_name);
+        if (file == nullptr) {
+            Out::Error("File not found");
+            return;
+        }
+
+        file->overwrite_content(buffer);
     }
 }
+
+void Command::clear() { Out::Clear(); }
 
 void Command::exit() { state->exit(); }

@@ -23,11 +23,20 @@ void System::init() {
 
 std::string System::get_user() { return user; }
 
-void System::move_to_dir(const std::string& dirname) {
-    present = present->get_dir(dirname);
+bool System::move_to_dir(const std::string& dirname) {
+    Directory* sub = present->get_dir(dirname);
+    if (sub == nullptr) return false;
+
+    present = sub;
+    return true;
 }
 
-void System::move_to_dir(Directory& directory) { present = &directory; }
+bool System::move_to_dir(Directory* directory) {
+    if (directory == nullptr) return false;
+
+    present = directory;
+    return true;
+}
 
 void System::move_to_root() { present = root; }
 

@@ -22,8 +22,8 @@ class System {
 
     std::string get_user();
 
-    void move_to_dir(const std::string& dirname);
-    void move_to_dir(Directory& directory);
+    bool move_to_dir(const std::string& dirname);
+    bool move_to_dir(Directory* directory);
     void move_to_root();
 
     void exit();

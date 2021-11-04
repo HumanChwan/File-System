@@ -4,11 +4,16 @@
 #include <string>
 #include <vector>
 
+#include "./Directory.h"
+
 class System;
 
 class Command {
    private:
     System* state;
+
+    Directory* crawl(Directory* start, const std::vector<std::string>& path);
+    Directory* crawl(Directory* start, const std::string& path);
 
    public:
     Command(System* sys_state, const std::string& command);
@@ -22,6 +27,8 @@ class Command {
     void list(const std::vector<std::string>& args);
 
     void cat(const std::vector<std::string>& args);
+
+    void clear();
 
     void exit();
 };

@@ -79,7 +79,7 @@ Directory* Directory::get_dir(const std::string& dirname) {
         }
     }
 
-    return this;
+    return nullptr;
 }
 
 Directory* Directory::parent() { return m_Parent; }
@@ -112,8 +112,18 @@ void Directory::list(bool all_flag) const {
         if (node->get_name()[0] == '.') {
             if (!all_flag) continue;
 
+            if (node->get_type() == NodeType::DIRECTORY_NODE)
+                list_all += Terminal::PURPLE;
+            else
+                list_all += Terminal::CYAN;
+
             list_all += node->get_name();
         } else {
+            if (node->get_type() == NodeType::DIRECTORY_NODE)
+                list_all += Terminal::PURPLE;
+            else
+                list_all += Terminal::CYAN;
+
             list_all += node->get_name();
             if (node->get_type() == NodeType::DIRECTORY_NODE) list_all += "/";
         }
@@ -121,6 +131,7 @@ void Directory::list(bool all_flag) const {
     }
 
     Out::Log(list_all);
+    Out::Log(Terminal::DEFAULT);
 }
 
 std::string Directory::path() const { return m_Path; }
