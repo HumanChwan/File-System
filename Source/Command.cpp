@@ -7,6 +7,7 @@
 
 #include "../Header/Directory.h"
 #include "../Header/File.h"
+#include "../Header/Node.h"
 #include "../Header/Out.h"
 #include "../Header/System.h"
 #include "../Header/util.h"
@@ -43,24 +44,24 @@ Command::Command(System* sys_state, const std::string& command) {
 
     state = sys_state;
 
-    if (base_command == "cd") {
+    if (base_command == "cd")
         change_directory(split_commands);
-    } else if (base_command == "mkdir") {
+    else if (base_command == "mkdir")
         make_directory(split_commands);
-    } else if (base_command == "ls") {
+    else if (base_command == "ls")
         list(split_commands);
-    } else if (base_command == "touch") {
+    else if (base_command == "touch")
         touch(split_commands);
-    } else if (base_command == "cat") {
+    else if (base_command == "cat")
         cat(split_commands);
-    } else if (base_command == "clear") {
+    else if (base_command == "mv")
+        move(split_commands);
+    else if (base_command == "clear")
         clear();
-    } else if (base_command == "exit") {
+    else if (base_command == "exit")
         exit();
-    } else {
+    else
         Out::Error(base_command + ": unrecognized command");
-        return;
-    }
 }
 
 void Command::change_directory(const std::vector<std::string>& args) {
@@ -203,6 +204,44 @@ void Command::cat(const std::vector<std::string>& args) {
 
         file->overwrite_content(buffer);
     }
+}
+
+void Command::move(const std::vector<std::string>& args) {
+    if (args.size() > 2) {
+        Out::Error("Too many arguments");
+        return;
+    }
+
+    if (args.size() < 2) {
+        Out::Error("Missing necessary arguments");
+        return;
+    }
+
+    std::vector<std::string> source_path = FS::split(args[0], '/');
+    std::string node_name = source_path.back();
+    source_path.pop_back();
+    Directory* source_parent_directory = crawl(state->present, source_path);
+    if (source_parent_directory == nullptr) {
+        return;
+    }
+
+    Node* node = source_parent_directory->get_node(node_name);
+    if (node == nullptr) {
+        return;
+    }
+
+    Directory* destination_directory = crawl(state->present, args[1]);
+    if (destination_directory == nullptr) {
+        Out::Error("Destination directory does not exist");
+        return;
+    }
+
+    if (destination_directory->find_node(node_name)) {
+        Out::Error(node_name + ": exists in destination directory");
+    }
+
+    source_parent_directory->remove_node(node);
+    destination_directory->push_node(node);
 }
 
 void Command::clear() { Out::Clear(); }

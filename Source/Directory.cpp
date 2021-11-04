@@ -82,7 +82,43 @@ Directory* Directory::get_dir(const std::string& dirname) {
     return nullptr;
 }
 
+bool Directory::find_node(const std::string& node_name) {
+    for (Node* node : m_Nodes) {
+        if (node->get_name() == node_name) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+Node* Directory::get_node(const std::string& node_name) {
+    for (Node* node : m_Nodes) {
+        if (node->get_name() == node_name) {
+            return node;
+        }
+    }
+
+    return nullptr;
+}
+
+void Directory::push_node(Node* node) {
+    if (node->get_type() == NodeType::FILE_NODE)
+        node->get_data().file->set_parent_directory(this);
+    else {
+        Directory* directory = node->get_data().directory;
+        directory->set_parent_directory(this);
+        directory->set_path(m_Path + directory->get_dirname());
+    }
+    m_Nodes.push_back(node);
+}
+
+void Directory::remove_node(Node* node) { m_Nodes.remove(node); }
+
 Directory* Directory::parent() { return m_Parent; }
+void Directory::set_parent_directory(Directory* directory) {
+    m_Parent = directory;
+}
 
 void Directory::make_dir(const std::string& dirname) {
     if (find_sub_directory(dirname)) {
@@ -105,6 +141,8 @@ void Directory::touch(const std::string& filename) {
 }
 
 std::string Directory::get_dirname() const { return m_Dirname; }
+
+void Directory::set_path(const std::string& new_path) { m_Path = new_path; }
 
 void Directory::list(bool all_flag) const {
     std::string list_all = "";

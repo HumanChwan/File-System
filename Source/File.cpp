@@ -8,6 +8,10 @@ File::File(const std::string& filename, Directory* parent_dir) {
     m_filecontent = "";
 }
 
+void File::set_parent_directory(Directory* directory) {
+    m_parent_directory = directory;
+}
+
 std::string File::get_filename() const { return m_filename; }
 
 std::string File::content() const { return m_filecontent; }
