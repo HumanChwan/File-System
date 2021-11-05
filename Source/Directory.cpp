@@ -147,22 +147,11 @@ void Directory::set_path(const std::string& new_path) { m_Path = new_path; }
 void Directory::list(bool all_flag) const {
     std::string list_all = "";
     for (Node* node : m_Nodes) {
-        if (node->get_name()[0] == '.') {
+        if (node->hidden()) {
             if (!all_flag) continue;
-
-            if (node->get_type() == NodeType::DIRECTORY_NODE)
-                list_all += Terminal::PURPLE;
-            else
-                list_all += Terminal::CYAN;
-
-            list_all += node->get_name();
+            list_all += node->display_name();
         } else {
-            if (node->get_type() == NodeType::DIRECTORY_NODE)
-                list_all += Terminal::PURPLE;
-            else
-                list_all += Terminal::CYAN;
-
-            list_all += node->get_name();
+            list_all += node->display_name();
             if (node->get_type() == NodeType::DIRECTORY_NODE) list_all += "/";
         }
         list_all += " ";
@@ -173,6 +162,22 @@ void Directory::list(bool all_flag) const {
 }
 
 std::string Directory::path() const { return m_Path; }
+
+void Directory::traverse(const std::string depth_denotion) const {
+    if (m_Nodes.size() == 0) return;
+
+    auto pre_end = --m_Nodes.end();
+    for (auto iter = m_Nodes.begin(); iter != pre_end; ++iter) {
+        if ((*iter)->hidden()) continue;
+        Out::Log(depth_denotion + "├── " + (*iter)->display_name());
+        Out::Default();
+        (*iter)->traverse(depth_denotion + "│   ");
+    }
+    if ((*pre_end)->hidden()) return;
+    Out::Log(depth_denotion + "└── " + (*pre_end)->display_name());
+    Out::Default();
+    (*pre_end)->traverse(depth_denotion + "    ");
+}
 
 // <------Destructor-------->
 Directory::~Directory() {

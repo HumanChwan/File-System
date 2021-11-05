@@ -10,6 +10,7 @@ Node::Node(File* data) {
     m_Type = NodeType::FILE_NODE;
     m_Data.file = data;
     m_Name = data->get_filename();
+    m_Hidden = (m_Name[0] == '.');
 }
 
 Node::Node(Directory* data, bool parent, bool self) {
@@ -27,14 +28,31 @@ Node::Node(Directory* data, bool parent, bool self) {
     } else {
         m_Name = data->get_dirname();
     }
+
+    m_Hidden = (m_Name[0] == '.');
 }
 
 // <-------Public Methods--------->
 std::string Node::get_name() const { return m_Name; }
 
+std::string Node::display_name() const {
+    if (m_Type == NodeType::DIRECTORY_NODE) {
+        return Terminal::PURPLE + m_Name;
+    } else {
+        return Terminal::CYAN + m_Name;
+    }
+}
+
 NodeType Node::get_type() const { return m_Type; }
 
 NodeData Node::get_data() const { return m_Data; }
+
+bool Node::hidden() const { return m_Hidden; }
+
+void Node::traverse(std::string depth_denotion) const {
+    if (m_Type == NodeType::DIRECTORY_NODE)
+        m_Data.directory->traverse(depth_denotion);
+}
 
 // <------Destructor-------->
 Node::~Node() {

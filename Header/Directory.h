@@ -43,6 +43,7 @@ class Directory {
 
     void list(bool all_flag) const;
     std::string path() const;
+    void traverse(const std::string depth_denotion = "") const;
 
     ~Directory();
 };

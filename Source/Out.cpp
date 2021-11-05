@@ -17,3 +17,5 @@ void Out::Base_Prompt(const std::string& user, const std::string& path) {
 void Out::Log(const std::string& message) { std::cout << message << std::endl; }
 
 void Out::Clear() { std::cout << "\x1b[2J\x1b[1;1H"; }
+
+void Out::Default() { std::cout << Terminal::DEFAULT; }

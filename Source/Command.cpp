@@ -56,6 +56,8 @@ Command::Command(System* sys_state, const std::string& command) {
         cat(split_commands);
     else if (base_command == "mv")
         move(split_commands);
+    else if (base_command == "tree")
+        tree(split_commands);
     else if (base_command == "clear")
         clear();
     else if (base_command == "exit")
@@ -242,6 +244,27 @@ void Command::move(const std::vector<std::string>& args) {
 
     source_parent_directory->remove_node(node);
     destination_directory->push_node(node);
+}
+
+void Command::tree(const std::vector<std::string>& args) {
+    if (args.size() > 1) {
+        Out::Error("Too many arguments");
+        return;
+    }
+
+    Directory* selected_root = state->present;
+    if (args.size() == 1) {
+        selected_root = crawl(state->present, args[0]);
+        if (selected_root == nullptr) {
+            return;
+        }
+    }
+
+    Out::Log(Terminal::PURPLE +
+             (selected_root == state->present ? "." : args[0]));
+    Out::Default();
+    selected_root->get_node(".")->traverse();
+    Out::Log(Terminal::DEFAULT);
 }
 
 void Command::clear() { Out::Clear(); }
