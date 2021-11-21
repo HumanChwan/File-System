@@ -56,6 +56,8 @@ Command::Command(System* sys_state, const std::string& command) {
         cat(split_commands);
     else if (base_command == "mv")
         move(split_commands);
+    else if (base_command == "rm")
+        remove(split_commands);
     else if (base_command == "tree")
         tree(split_commands);
     else if (base_command == "clear")
@@ -224,17 +226,24 @@ void Command::move(const std::vector<std::string>& args) {
     source_path.pop_back();
     Directory* source_parent_directory = crawl(state->present, source_path);
     if (source_parent_directory == nullptr) {
+        Out::Error("Source path does not exist");
         return;
     }
 
     Node* node = source_parent_directory->get_node(node_name);
     if (node == nullptr) {
+        Out::Error("Source path does not exist");
         return;
     }
 
     Directory* destination_directory = crawl(state->present, args[1]);
     if (destination_directory == nullptr) {
         Out::Error("Destination directory does not exist");
+        return;
+    }
+
+    if (destination_directory->has_ancestor(node)) {
+        Out::Error("Cannot move source to its subdirectory");
         return;
     }
 
@@ -265,6 +274,59 @@ void Command::tree(const std::vector<std::string>& args) {
     Out::Default();
     selected_root->get_node(".")->traverse();
     Out::Log(Terminal::DEFAULT);
+}
+
+void Command::remove(const std::vector<std::string>& args) {
+    std::map<std::string, bool> flag;
+    flag["-r"] = false;
+    flag["-d"] = false;
+    std::string path;
+    for (const std::string& x : args) {
+        if (x[0] == '-') {
+            if (!flag.count(x)) {
+                Out::Error(x + " flag doesn't exist");
+                return;
+            } else {
+                flag[x] = true;
+            }
+        } else {
+            path = x;
+        }
+    }
+
+    std::vector<std::string> node_path = FS::split(path, '/');
+    std::string node_name = node_path.back();
+    node_path.pop_back();
+    Directory* parent_directory = crawl(state->present, node_path);
+    if (parent_directory == nullptr) {
+        Out::Error("Path does not exist");
+        return;
+    }
+
+    Node* node = parent_directory->get_node(node_name);
+    if (node == nullptr) {
+        Out::Error("Path does not exist");
+        return;
+    }
+
+    if (node->get_type() == NodeType::FILE_NODE) {
+        parent_directory->remove_node(node);
+        delete node;
+        return;
+    }
+
+    if (!flag["-d"]) {
+        Out::Error(node->get_name() + " is a directory");
+        return;
+    }
+
+    if (!node->get_data().directory->empty() && !flag["-r"]) {
+        Out::Error(node->get_name() + " is not an empty directory");
+        return;
+    }
+
+    parent_directory->remove_node(node);
+    delete node;
 }
 
 void Command::clear() { Out::Clear(); }
