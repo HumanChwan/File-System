@@ -23,7 +23,3 @@ void File::append_content(const std::string& new_content) {
 void File::overwrite_content(const std::string& new_content) {
     m_filecontent = new_content;
 }
-
-void File::operator=(std::string& buffer) { m_filecontent = buffer; }
-
-void File::operator+=(std::string& buffer) { m_filecontent += buffer; }

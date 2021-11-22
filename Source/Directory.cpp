@@ -7,12 +7,12 @@ Directory::Directory(Directory* parentDir, const std::string& dirname) {
 
     m_Path = "";
     if (parentDir != nullptr) {
-        m_Nodes.push_back(new Node(parentDir, true));
-        m_Nodes.push_back(new Node(this, false, true));
+        m_Nodes.emplace_back(new Node(parentDir, true));
+        m_Nodes.emplace_back(new Node(this, false, true));
 
         m_Path = parentDir->path() + dirname;
     } else {
-        m_Nodes.push_back(new Node(this, false, true));
+        m_Nodes.emplace_back(new Node(this, false, true));
         m_Parent = this;
     }
 
@@ -110,7 +110,7 @@ void Directory::push_node(Node* node) {
         directory->set_parent_directory(this);
         directory->set_path(m_Path + directory->get_dirname());
     }
-    m_Nodes.push_back(node);
+    m_Nodes.emplace_back(node);
 }
 
 void Directory::remove_node(Node* node) { m_Nodes.remove(node); }
@@ -127,7 +127,7 @@ void Directory::make_dir(const std::string& dirname) {
     }
 
     Directory* new_dir = new Directory(this, dirname);
-    m_Nodes.push_back(new Node(new_dir));
+    m_Nodes.emplace_back(new Node(new_dir));
 }
 
 void Directory::touch(const std::string& filename) {
@@ -137,7 +137,7 @@ void Directory::touch(const std::string& filename) {
     }
 
     File* new_file = new File(filename, this);
-    m_Nodes.push_back(new Node(new_file));
+    m_Nodes.emplace_back(new Node(new_file));
 }
 
 std::string Directory::get_dirname() const { return m_Dirname; }
