@@ -1,4 +1,4 @@
-chmod +x ./script.sh
+echo "Starting Script...";
+g++ ./Source/*.cpp -o fs.exe
 
-./script.sh
 ./fs.exe

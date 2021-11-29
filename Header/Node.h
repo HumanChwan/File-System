@@ -29,7 +29,7 @@ class Node {
     bool hidden() const;
     std::string get_name() const;
     std::string display_name() const;
-    void traverse(const std::string depth_denotion = "") const;
+    void traverse(const std::string depth_denotation = "") const;
     ~Node();
 };
 
