@@ -304,7 +304,7 @@ void Command::remove(const std::vector<std::string>& args) {
     std::map<std::string, bool> flag;
     flag["-r"] = false;
     flag["-d"] = false;
-    std::string path;
+    std::vector<std::string> paths;
     for (const std::string& x : args) {
         if (x[0] == '-') {
             if (!flag.count(x)) {
@@ -314,43 +314,45 @@ void Command::remove(const std::vector<std::string>& args) {
                 flag[x] = true;
             }
         } else {
-            path = x;
+            paths.push_back(x);
         }
     }
 
-    std::vector<std::string> node_path = FS::split(path, '/');
-    std::string node_name = node_path.back();
-    node_path.pop_back();
-    Directory* parent_directory = crawl(state->present, node_path);
-    if (parent_directory == nullptr) {
-        Out::Error("Path does not exist");
-        return;
-    }
+    for (const std::string& path : paths) {
+        std::vector<std::string> node_path = FS::split(path, '/');
+        std::string node_name = node_path.back();
+        node_path.pop_back();
+        Directory* parent_directory = crawl(state->present, node_path);
+        if (parent_directory == nullptr) {
+            Out::Error(path + ": Path does not exist");
+            continue;
+        }
 
-    Node* node = parent_directory->get_node(node_name);
-    if (node == nullptr) {
-        Out::Error("Path does not exist");
-        return;
-    }
+        Node* node = parent_directory->get_node(node_name);
+        if (node == nullptr) {
+            Out::Error(path + ": Path does not exist");
+            return;
+        }
 
-    if (node->get_type() == NodeType::FILE_NODE) {
+        if (node->get_type() == NodeType::FILE_NODE) {
+            parent_directory->remove_node(node);
+            delete node;
+            return;
+        }
+
+        if (!flag["-d"]) {
+            Out::Error(node->get_name() + " is a directory");
+            return;
+        }
+
+        if (!node->get_data().directory->empty() && !flag["-r"]) {
+            Out::Error(node->get_name() + " is not an empty directory");
+            return;
+        }
+
         parent_directory->remove_node(node);
         delete node;
-        return;
     }
-
-    if (!flag["-d"]) {
-        Out::Error(node->get_name() + " is a directory");
-        return;
-    }
-
-    if (!node->get_data().directory->empty() && !flag["-r"]) {
-        Out::Error(node->get_name() + " is not an empty directory");
-        return;
-    }
-
-    parent_directory->remove_node(node);
-    delete node;
 }
 
 void Command::clear() { Out::Clear(); }
