@@ -144,63 +144,93 @@ void Command::list(const std::vector<std::string>& args) {
 }
 
 void Command::cat(const std::vector<std::string>& args) {
-    if (args.size() > 2) {
-        Out::Error("Too many arguments");
+    // 0: in, 1: out
+    std::vector<std::string> nodes[2];
+    bool out = false;
+    bool in = true;
+    // format considered: cat < [....in....] > [....out....]
+    /*
+        for command: "cat > [....out....]"
+        it is read as: cat < 1 > [....out....]
+
+        for command: "cat < [....in....]" or "cat [....in....]"
+        it is read as: cat < [....in....] > 2
+    */
+    for (const std::string& arg : args) {
+        if (arg == ">") {
+            if (out) {
+                Out::Error("Invalid arguments!");
+                return;
+            }
+            out = true;
+            in = false;
+            continue;
+        } else if (arg == "<") {
+            if (!in) {
+                Out::Error("Invalid arguments!");
+                return;
+            }
+            continue;
+        }
+
+        nodes[out].push_back(arg);
     }
 
-    bool stdin_cat = (args.size() == 0 || args[0] == ">");
-    bool stdout_cat = (args.size() == 1 || args[1] == "<");
+    bool stdin_cat = (nodes[0].size() == 0);
+    bool stdout_cat = (nodes[1].size() == 0);
 
     std::string buffer;
     if (stdin_cat) {
         std::string line;
         while (true) {
             std::getline(std::cin, line);
-            if (line[0] == '\x1b') {
-                break;
-            }
-            buffer += line + "\n";
+            if (line[0] == '\x1b') break;
+            buffer += line + '\n';
         }
     } else {
         // File to buffer
-        std::vector<std::string> file_path = FS::split(args[0], '/');
-        std::string file_name = file_path.back();
-        file_path.pop_back();
+        for (const std::string& buffer_files : nodes[0]) {
+            std::vector<std::string> file_path = FS::split(buffer_files, '/');
+            std::string file_name = file_path.back();
+            file_path.pop_back();
 
-        Directory* parent = crawl(state->present, file_path);
-        if (parent == nullptr) {
-            return;
+            Directory* parent = crawl(state->present, file_path);
+            if (parent == nullptr) {
+                return;
+            }
+
+            File* file = parent->get_file(file_name);
+            if (file == nullptr) {
+                Out::Error(file_name + ": File not found");
+                continue;
+            }
+
+            buffer += file->content();
         }
-
-        File* file = parent->get_file(file_name);
-        if (file == nullptr) {
-            Out::Error("File not found");
-            return;
-        }
-
-        buffer = file->content();
     }
 
     if (stdout_cat) {
         Out::Log(buffer);
     } else {
         // buffer to file
-        std::vector<std::string> file_path = FS::split(args[1], '/');
-        std::string file_name = file_path.back();
-        file_path.pop_back();
+        for (const std::string& buffer_files : nodes[1]) {
+            std::vector<std::string> file_path = FS::split(buffer_files, '/');
+            std::string file_name = file_path.back();
+            file_path.pop_back();
 
-        Directory* parent = crawl(state->present, file_path);
-        if (parent == nullptr) {
-            return;
+            Directory* parent = crawl(state->present, file_path);
+            if (parent == nullptr) {
+                return;
+            }
+
+            File* file = parent->get_file(file_name);
+            if (file == nullptr) {
+                Out::Error(file_name + ": File not found");
+                continue;
+            }
+
+            file->overwrite_content(buffer);
         }
-
-        File* file = parent->get_file(file_name);
-        if (file == nullptr) {
-            Out::Error("File not found");
-            return;
-        }
-
-        file->overwrite_content(buffer);
     }
 }
 
