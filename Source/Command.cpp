@@ -84,49 +84,43 @@ void Command::change_directory(const std::vector<std::string>& args) {
 }
 
 void Command::make_directory(const std::vector<std::string>& args) {
-    if (args.size() > 1) {
-        Out::Error("Too many arguments.");
-        return;
-    }
-
     if (args.size() < 1) {
         Out::Error("Missing necessary arguments.");
         return;
     }
 
-    std::vector<std::string> new_directory_path = FS::split(args[0], '/');
-    std::string new_directory_name = new_directory_path.back();
-    new_directory_path.pop_back();
+    for (const std::string& new_dir : args) {
+        std::vector<std::string> new_directory_path = FS::split(new_dir, '/');
+        std::string new_directory_name = new_directory_path.back();
+        new_directory_path.pop_back();
 
-    Directory* parent = crawl(state->present, new_directory_path);
-    if (parent == nullptr) {
-        return;
+        Directory* parent = crawl(state->present, new_directory_path);
+        if (parent == nullptr) {
+            return;
+        }
+
+        parent->make_dir(new_directory_name);
     }
-
-    parent->make_dir(new_directory_name);
 }
 
 void Command::touch(const std::vector<std::string>& args) {
-    if (args.size() > 1) {
-        Out::Error("Too many arguments.");
-        return;
-    }
-
     if (args.size() < 1) {
         Out::Error("Missing necessary arguments.");
         return;
     }
 
-    std::vector<std::string> new_file_path = FS::split(args[0], '/');
-    std::string new_file_name = new_file_path.back();
-    new_file_path.pop_back();
+    for (const std::string& arg : args) {
+        std::vector<std::string> new_file_path = FS::split(arg, '/');
+        std::string new_file_name = new_file_path.back();
+        new_file_path.pop_back();
 
-    Directory* parent = crawl(state->present, new_file_path);
-    if (parent == nullptr) {
-        return;
+        Directory* parent = crawl(state->present, new_file_path);
+        if (parent == nullptr) {
+            return;
+        }
+
+        parent->touch(new_file_name);
     }
-
-    parent->touch(new_file_name);
 }
 
 void Command::list(const std::vector<std::string>& args) {
@@ -211,48 +205,48 @@ void Command::cat(const std::vector<std::string>& args) {
 }
 
 void Command::move(const std::vector<std::string>& args) {
-    if (args.size() > 2) {
-        Out::Error("Too many arguments");
-        return;
-    }
-
     if (args.size() < 2) {
         Out::Error("Missing necessary arguments");
         return;
     }
 
-    std::vector<std::string> source_path = FS::split(args[0], '/');
-    std::string node_name = source_path.back();
-    source_path.pop_back();
-    Directory* source_parent_directory = crawl(state->present, source_path);
-    if (source_parent_directory == nullptr) {
-        Out::Error("Source path does not exist");
-        return;
-    }
-
-    Node* node = source_parent_directory->get_node(node_name);
-    if (node == nullptr) {
-        Out::Error("Source path does not exist");
-        return;
-    }
-
-    Directory* destination_directory = crawl(state->present, args[1]);
+    Directory* destination_directory = crawl(state->present, args.back());
     if (destination_directory == nullptr) {
         Out::Error("Destination directory does not exist");
         return;
     }
 
-    if (destination_directory->has_ancestor(node)) {
-        Out::Error("Cannot move source to its subdirectory");
-        return;
-    }
+    std::vector<std::string> nodes = args;
+    nodes.pop_back();
+    for (std::string& input_node : nodes) {
+        std::vector<std::string> source_path = FS::split(input_node, '/');
+        std::string node_name = source_path.back();
+        source_path.pop_back();
+        Directory* source_parent_directory = crawl(state->present, source_path);
+        if (source_parent_directory == nullptr) {
+            Out::Error("Source path does not exist");
+            return;
+        }
 
-    if (destination_directory->find_node(node_name)) {
-        Out::Error(node_name + ": exists in destination directory");
-    }
+        Node* node = source_parent_directory->get_node(node_name);
+        if (node == nullptr) {
+            Out::Error("Source path does not exist");
+            return;
+        }
 
-    source_parent_directory->remove_node(node);
-    destination_directory->push_node(node);
+        if (destination_directory->has_ancestor(node)) {
+            Out::Error("Cannot move source to its subdirectory");
+            continue;
+        }
+
+        if (destination_directory->find_node(node_name)) {
+            Out::Error(node_name + ": exists in destination directory");
+            continue;
+        }
+
+        source_parent_directory->remove_node(node);
+        destination_directory->push_node(node);
+    }
 }
 
 void Command::tree(const std::vector<std::string>& args) {
