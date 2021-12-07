@@ -1,5 +1,8 @@
 #include "../Header/util.h"
 
+#include <fstream>
+#include <iostream>
+
 std::vector<std::string> FS::split(const std::string& str, char split_char) {
     std::vector<std::string> a;
     std::string temp = "";
@@ -25,4 +28,22 @@ std::string FS::join(const std::vector<std::string>& str, char split_char) {
     }
 
     return temp;
+}
+
+std::string FS::hashIt(const std::string& base) {
+    std::string hash = "";
+
+    static int32_t key = 0;
+    if (key == 0) {
+        std::ifstream f(".env");
+        f >> key;
+        f.close();
+    }
+
+    // Printable Characters: 33 - 126
+    for (char x : base) {
+        hash += (char)((x ^ key) % 94 + 33);
+    }
+
+    return hash;
 }

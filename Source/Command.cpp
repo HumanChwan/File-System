@@ -9,6 +9,7 @@
 #include "../Header/File.h"
 #include "../Header/Node.h"
 #include "../Header/Out.h"
+#include "../Header/Store.h"
 #include "../Header/System.h"
 #include "../Header/util.h"
 
@@ -44,7 +45,11 @@ Command::Command(System* sys_state, const std::string& command) {
 
     state = sys_state;
 
-    if (base_command == "cd")
+    if (base_command == "login")
+        login();
+    else if (base_command == "logout")
+        logout();
+    else if (base_command == "cd")
         change_directory(split_commands);
     else if (base_command == "mkdir")
         make_directory(split_commands);
@@ -67,6 +72,46 @@ Command::Command(System* sys_state, const std::string& command) {
     else
         Out::Error(base_command + ": unrecognized command");
 }
+
+void Command::login() {
+    if (state->is_logged_in()) {
+        Out::Error("User [" + state->get_user() + "] is already logged in.");
+        return;
+    }
+    Out::Interactive("Username:");
+    std::string username;
+    getline(std::cin, username);
+
+    try {
+        std::string hashPassword = FS::getHashedPassword(username);
+
+        Out::Interactive("Password:");
+        std::string password;
+        getline(std::cin, password);
+
+        if (FS::hashIt(password) != hashPassword) {
+        } else {
+            state->set_hashed_password(hashPassword);
+            state->set_user(username);
+            // Parse the shit out of the file...()
+        }
+    } catch (const char*& error) {
+        Out::Error("No user [" + username + "], found");
+        Out::Log("Created new user with username: " + username);
+
+        Out::Interactive("Create Password:");
+        std::string password;
+        getline(std::cin, password);
+
+        password = FS::hashIt(password);
+        state->set_hashed_password(password);
+
+        FS::Save(username, password);
+        state->set_user(username);
+    }
+}
+
+void Command::logout() {}
 
 void Command::change_directory(const std::vector<std::string>& args) {
     if (args.size() > 1) {

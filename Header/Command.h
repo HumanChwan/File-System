@@ -18,6 +18,11 @@ class Command {
    public:
     Command(System* sys_state, const std::string& command);
 
+    // auth
+    void login();
+    void logout();
+
+    // classic
     void change_directory(const std::vector<std::string>& args);
     void make_directory(const std::vector<std::string>& args);
     void touch(const std::vector<std::string>& args);
