@@ -4,10 +4,10 @@
 #include "../Header/Out.h"
 
 System::System() {
-    root = new Directory(nullptr, "root");
-    present = root;
+    m_Root = new Directory(nullptr, "root");
+    present = m_Root;
     m_Live = true;
-    m_Username = "~~temp";
+    m_Username = "<!Temp User>";
     m_Logged_in = false;
 }
 
@@ -22,12 +22,25 @@ void System::init() {
     }
 }
 
-std::string System::get_user() { return m_Username; }
+Directory* System::root() const { return m_Root; }
+std::string System::get_user() const { return m_Username; }
 void System::set_user(const std::string& user) { m_Username = user; }
-bool System::is_logged_in() { return m_Logged_in; }
-void System::toggle_login_status() { m_Logged_in = !m_Logged_in; }
+std::string System::get_hashed_password() const { return m_Hashed_password; }
 void System::set_hashed_password(const std::string& hash) {
     m_Hashed_password = hash;
+}
+bool System::is_logged_in() { return m_Logged_in; }
+void System::toggle_login_status() { m_Logged_in = !m_Logged_in; }
+void System::reset(Directory* root) {
+    delete m_Root;
+    if (root == nullptr) {
+        m_Root = new Directory(nullptr, "root");
+        present = m_Root;
+        m_Username = "<!Temp User>";
+    } else {
+        m_Root = root;
+        present = m_Root;
+    }
 }
 
 bool System::move_to_dir(const std::string& dirname) {
@@ -45,7 +58,7 @@ bool System::move_to_dir(Directory* directory) {
     return true;
 }
 
-void System::move_to_root() { present = root; }
+void System::move_to_root() { present = m_Root; }
 
 void System::exit() {
     Out::Log("Exiting...");
@@ -53,4 +66,4 @@ void System::exit() {
     Out::Log("Exited!");
 }
 
-System::~System() { delete root; }
+System::~System() { delete m_Root; }

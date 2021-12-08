@@ -3,10 +3,8 @@
 #include <fstream>
 
 std::string FS::getHashedPassword(const std::string& user) {
-    std::ifstream f_in("Data/" + user + ".fs");
+    std::ifstream f_in("Data/" + user + FS::EXT);
     if (f_in.fail()) {
-        std::ofstream f_out("Data/" + user + ".fs", std::ios::out);
-        f_out.close();
         throw("User does not exist.");
     }
 
@@ -16,10 +14,11 @@ std::string FS::getHashedPassword(const std::string& user) {
 
     return hashedPassword;
 }
-// void FS::
-void FS::Parser() {}
-void FS::Save(const std::string& user, const std::string& hash) {
-    std::ofstream f_out("Data/" + user + ".fs", std::ios::out);
-    f_out << hash;
+Directory* FS::Parser(const std::string& user) { return nullptr; }
+void FS::Save(const std::string& user, const std::string& hash,
+              const Directory* root) {
+    std::ofstream f_out("Data/" + user + FS::EXT, std::ios::out);
+    f_out << hash << "\n";
+
     f_out.close();
 }

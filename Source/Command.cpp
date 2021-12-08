@@ -75,7 +75,8 @@ Command::Command(System* sys_state, const std::string& command) {
 
 void Command::login() {
     if (state->is_logged_in()) {
-        Out::Error("User [" + state->get_user() + "] is already logged in.");
+        Out::Error("User [\"" + state->get_user() +
+                   "\"] is already logged in.");
         return;
     }
     Out::Interactive("Username:");
@@ -90,28 +91,50 @@ void Command::login() {
         getline(std::cin, password);
 
         if (FS::hashIt(password) != hashPassword) {
+            Out::Error("Password do not match");
+            return;
         } else {
+            Out::Log("Welcome back \"" + username + "\"");
             state->set_hashed_password(hashPassword);
             state->set_user(username);
+            state->toggle_login_status();
+            // state->reset(FS::Parser(username));
             // Parse the shit out of the file...()
         }
     } catch (const char*& error) {
-        Out::Error("No user [" + username + "], found");
+        Out::Error("No user [\"" + username + "\"], found");
+        Out::Interactive("Would you like to create a new user with username: " +
+                         username + "? (y/n)");
+        char choice = getchar();
+        std::cin.ignore();
+        if (choice != 'Y' && choice != 'y') {
+            return;
+        }
         Out::Log("Created new user with username: " + username);
 
-        Out::Interactive("Create Password:");
         std::string password;
+        Out::Interactive("Create Password:");
         getline(std::cin, password);
 
         password = FS::hashIt(password);
+        Out::Log("Welcome \"" + username + "\"");
         state->set_hashed_password(password);
-
-        FS::Save(username, password);
         state->set_user(username);
+        state->toggle_login_status();
+
+        // FS::Save(username, password, state->root());
     }
 }
 
-void Command::logout() {}
+void Command::logout() {
+    if (!state->is_logged_in()) {
+        Out::Error("No User is logged in");
+        return;
+    }
+    FS::Save(state->get_user(), state->get_hashed_password(), state->root());
+    state->toggle_login_status();
+    state->reset(nullptr);
+}
 
 void Command::change_directory(const std::vector<std::string>& args) {
     if (args.size() > 1) {

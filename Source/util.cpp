@@ -1,7 +1,7 @@
 #include "../Header/util.h"
 
+#include <cassert>
 #include <fstream>
-#include <iostream>
 
 std::vector<std::string> FS::split(const std::string& str, char split_char) {
     std::vector<std::string> a;
@@ -36,6 +36,7 @@ std::string FS::hashIt(const std::string& base) {
     static int32_t key = 0;
     if (key == 0) {
         std::ifstream f(".env");
+        assert(!f.fail());
         f >> key;
         f.close();
     }
