@@ -48,6 +48,8 @@ NodeType Node::get_type() const { return m_Type; }
 NodeData Node::get_data() const { return m_Data; }
 
 bool Node::hidden() const { return m_Hidden; }
+bool Node::parent() const { return m_Parent; }
+bool Node::self() const { return m_Self; }
 
 void Node::traverse(std::string depth_denotion) const {
     if (m_Type == NodeType::DIRECTORY_NODE)

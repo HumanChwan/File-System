@@ -98,7 +98,7 @@ void Command::login() {
             state->set_hashed_password(hashPassword);
             state->set_user(username);
             state->toggle_login_status();
-            // state->reset(FS::Parser(username));
+            state->reset(FS::Parser(username));
             // Parse the shit out of the file...()
         }
     } catch (const char*& error) {
@@ -121,8 +121,6 @@ void Command::login() {
         state->set_hashed_password(password);
         state->set_user(username);
         state->toggle_login_status();
-
-        // FS::Save(username, password, state->root());
     }
 }
 
@@ -167,7 +165,9 @@ void Command::make_directory(const std::vector<std::string>& args) {
             return;
         }
 
-        parent->make_dir(new_directory_name);
+        if (parent->make_dir(new_directory_name) == nullptr) {
+            Out::Error("Directory with same path already exists");
+        }
     }
 }
 
@@ -187,7 +187,9 @@ void Command::touch(const std::vector<std::string>& args) {
             return;
         }
 
-        parent->touch(new_file_name);
+        if (parent->touch(new_file_name) == nullptr) {
+            Out::Error("File with same path already exists");
+        }
     }
 }
 
@@ -425,4 +427,9 @@ void Command::remove(const std::vector<std::string>& args) {
 
 void Command::clear() { Out::Clear(); }
 
-void Command::exit() { state->exit(); }
+void Command::exit() {
+    if (state->is_logged_in()) {
+        logout();
+    }
+    state->exit();
+}

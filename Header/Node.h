@@ -27,6 +27,8 @@ class Node {
     NodeType get_type() const;
     NodeData get_data() const;
     bool hidden() const;
+    bool parent() const;
+    bool self() const;
     std::string get_name() const;
     std::string display_name() const;
     void traverse(const std::string depth_denotation = "") const;

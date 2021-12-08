@@ -120,24 +120,26 @@ void Directory::set_parent_directory(Directory* directory) {
     m_Parent = directory;
 }
 
-void Directory::make_dir(const std::string& dirname) {
+Node* Directory::make_dir(const std::string& dirname) {
     if (find_sub_directory(dirname)) {
-        Out::Error("directory with same path already exists");
-        return;
+        return nullptr;
     }
 
     Directory* new_dir = new Directory(this, dirname);
-    m_Nodes.emplace_back(new Node(new_dir));
+    Node* node = new Node(new_dir);
+    m_Nodes.emplace_back(node);
+    return node;
 }
 
-void Directory::touch(const std::string& filename) {
+Node* Directory::touch(const std::string& filename) {
     if (find_file(filename)) {
-        Out::Error("file with same path already exists");
-        return;
+                return nullptr;
     }
 
     File* new_file = new File(filename, this);
-    m_Nodes.emplace_back(new Node(new_file));
+    Node* node = new Node(new_file);
+    m_Nodes.emplace_back(node);
+    return node;
 }
 
 std::string Directory::get_dirname() const { return m_Dirname; }
@@ -177,6 +179,13 @@ void Directory::traverse(const std::string depth_denotation) const {
     Out::Log(depth_denotation + "└── " + (*pre_end)->display_name());
     Out::Default();
     (*pre_end)->traverse(depth_denotation + "    ");
+}
+
+std::list<Node*>::const_iterator Directory::begin() const {
+    return m_Nodes.begin();
+}
+std::list<Node*>::const_iterator Directory::end() const {
+    return m_Nodes.end();
 }
 
 bool Directory::has_ancestor(Node* node) {
