@@ -29,3 +29,14 @@
 - `exit`:
   - Usage: `exit`
   - Exits the application.
+
+
+## How to run:
+
+- change the permissions of the `run.sh` file by running to make it executable:
+  - `chmod +x run.sh`
+- before running the application, make sure you a `.env` file in your root folder.
+- Inside `.env` make sure to have a single numeric Integer value (0 < x < 2^31).
+- The Integer inside the `.env` file is the secret key to for storing your passwords (XOR).
+- Run the application by executing the following command:
+  - `./run.sh`
