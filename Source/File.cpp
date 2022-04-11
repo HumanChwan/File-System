@@ -12,9 +12,13 @@ void File::set_parent_directory(Directory* directory) {
     m_parent_directory = directory;
 }
 
-std::string File::get_filename() const { return m_filename; }
+std::string File::get_filename() const {
+    return m_filename;
+}
 
-std::string File::content() const { return m_filecontent; }
+std::string File::content() const {
+    return m_filecontent;
+}
 
 void File::append_content(const std::string& new_content) {
     m_filecontent += new_content;

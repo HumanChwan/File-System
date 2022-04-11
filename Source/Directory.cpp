@@ -113,9 +113,13 @@ void Directory::push_node(Node* node) {
     m_Nodes.emplace_back(node);
 }
 
-void Directory::remove_node(Node* node) { m_Nodes.remove(node); }
+void Directory::remove_node(Node* node) {
+    m_Nodes.remove(node);
+}
 
-Directory* Directory::parent() { return m_Parent; }
+Directory* Directory::parent() {
+    return m_Parent;
+}
 void Directory::set_parent_directory(Directory* directory) {
     m_Parent = directory;
 }
@@ -133,7 +137,7 @@ Node* Directory::make_dir(const std::string& dirname) {
 
 Node* Directory::touch(const std::string& filename) {
     if (find_file(filename)) {
-                return nullptr;
+        return nullptr;
     }
 
     File* new_file = new File(filename, this);
@@ -142,19 +146,25 @@ Node* Directory::touch(const std::string& filename) {
     return node;
 }
 
-std::string Directory::get_dirname() const { return m_Dirname; }
+std::string Directory::get_dirname() const {
+    return m_Dirname;
+}
 
-void Directory::set_path(const std::string& new_path) { m_Path = new_path; }
+void Directory::set_path(const std::string& new_path) {
+    m_Path = new_path;
+}
 
 void Directory::list(bool all_flag) const {
     std::string list_all = "";
     for (Node* node : m_Nodes) {
         if (node->hidden()) {
-            if (!all_flag) continue;
+            if (!all_flag)
+                continue;
             list_all += node->display_name();
         } else {
             list_all += node->display_name();
-            if (node->get_type() == NodeType::DIRECTORY_NODE) list_all += "/";
+            if (node->get_type() == NodeType::DIRECTORY_NODE)
+                list_all += "/";
         }
         list_all += " ";
     }
@@ -163,19 +173,24 @@ void Directory::list(bool all_flag) const {
     Out::Log(Terminal::DEFAULT);
 }
 
-std::string Directory::path() const { return m_Path; }
+std::string Directory::path() const {
+    return m_Path;
+}
 
 void Directory::traverse(const std::string depth_denotation) const {
-    if (m_Nodes.size() == 0) return;
+    if (m_Nodes.size() == 0)
+        return;
 
     auto pre_end = --m_Nodes.end();
     for (auto iter = m_Nodes.begin(); iter != pre_end; ++iter) {
-        if ((*iter)->hidden()) continue;
+        if ((*iter)->hidden())
+            continue;
         Out::Log(depth_denotation + "├── " + (*iter)->display_name());
         Out::Default();
         (*iter)->traverse(depth_denotation + "│   ");
     }
-    if ((*pre_end)->hidden()) return;
+    if ((*pre_end)->hidden())
+        return;
     Out::Log(depth_denotation + "└── " + (*pre_end)->display_name());
     Out::Default();
     (*pre_end)->traverse(depth_denotation + "    ");
@@ -189,20 +204,25 @@ std::list<Node*>::const_iterator Directory::end() const {
 }
 
 bool Directory::has_ancestor(Node* node) {
-    if (node->get_type() == NodeType::FILE_NODE) return false;
+    if (node->get_type() == NodeType::FILE_NODE)
+        return false;
 
     for (Directory* iter = this;; iter = iter->parent()) {
         if (iter == node->get_data().directory) {
             return true;
         }
-        if (iter == iter->parent()) break;
+        if (iter == iter->parent())
+            break;
     }
     return false;
 }
 
-bool Directory::empty() const { return ((int)m_Nodes.size() == 0); }
+bool Directory::empty() const {
+    return ((int)m_Nodes.size() == 0);
+}
 
 // <------Destructor-------->
 Directory::~Directory() {
-    for (Node* node : m_Nodes) delete node;
+    for (Node* node : m_Nodes)
+        delete node;
 }

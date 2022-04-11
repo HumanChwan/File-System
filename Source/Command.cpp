@@ -254,7 +254,8 @@ void Command::cat(const std::vector<std::string>& args) {
         std::string line;
         while (true) {
             std::getline(std::cin, line);
-            if (line[0] == '\x1b') break;
+            if (line[0] == '\x1b')
+                break;
             buffer += line + '\n';
         }
     } else {
@@ -425,7 +426,9 @@ void Command::remove(const std::vector<std::string>& args) {
     }
 }
 
-void Command::clear() { Out::Clear(); }
+void Command::clear() {
+    Out::Clear();
+}
 
 void Command::exit() {
     if (state->is_logged_in()) {

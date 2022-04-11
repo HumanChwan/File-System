@@ -2,7 +2,9 @@
 
 #include "../Header/System.h"
 
-Out::Out() { std::cout << "\t\tFS - xCaliBer\n\n"; }
+Out::Out() {
+    std::cout << "\t\tFS - xCaliBer\n\n";
+}
 
 void Out::Error(const std::string& message) {
     std::cerr << Terminal::RED << "ERROR: " << Terminal::DEFAULT << message
@@ -14,12 +16,18 @@ void Out::Base_Prompt(const std::string& user, const std::string& path) {
               << "$ " << Terminal::DEFAULT;
 }
 
-void Out::Log(const std::string& message) { std::cout << message << std::endl; }
+void Out::Log(const std::string& message) {
+    std::cout << message << std::endl;
+}
 
 void Out::Interactive(const std::string& message) {
     std::cout << message << " ";
 }
 
-void Out::Clear() { std::cout << "\x1b[2J\x1b[1;1H"; }
+void Out::Clear() {
+    std::cout << "\x1b[2J\x1b[1;1H";
+}
 
-void Out::Default() { std::cout << Terminal::DEFAULT; }
+void Out::Default() {
+    std::cout << Terminal::DEFAULT;
+}

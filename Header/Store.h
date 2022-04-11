@@ -13,7 +13,8 @@ constexpr char EON = '\x1b';
 constexpr char NTS = '\x11';
 std::string getHashedPassword(const std::string& user);
 Directory* Parser(const std::string& user);
-void Save(const std::string& user, const std::string& hash,
+void Save(const std::string& user,
+          const std::string& hash,
           const Directory* root);
 };  // namespace FS
 

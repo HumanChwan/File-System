@@ -14,13 +14,15 @@ std::vector<std::string> FS::split(const std::string& str, char split_char) {
             temp += x;
         }
     }
-    if (temp != "") a.push_back(temp);
+    if (temp != "")
+        a.push_back(temp);
 
     return a;
 }
 
 std::string FS::join(const std::vector<std::string>& str, char split_char) {
-    if ((int)str.size() == 0) return "";
+    if ((int)str.size() == 0)
+        return "";
 
     std::string temp = str[0];
     for (int i = 1; i < (int)str.size(); ++i) {

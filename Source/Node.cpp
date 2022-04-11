@@ -33,7 +33,9 @@ Node::Node(Directory* data, bool parent, bool self) {
 }
 
 // <-------Public Methods--------->
-std::string Node::get_name() const { return m_Name; }
+std::string Node::get_name() const {
+    return m_Name;
+}
 
 std::string Node::display_name() const {
     if (m_Type == NodeType::DIRECTORY_NODE) {
@@ -43,17 +45,27 @@ std::string Node::display_name() const {
     }
 }
 
-NodeType Node::get_type() const { return m_Type; }
+NodeType Node::get_type() const {
+    return m_Type;
+}
 
-NodeData Node::get_data() const { return m_Data; }
+NodeData Node::get_data() const {
+    return m_Data;
+}
 
-bool Node::hidden() const { return m_Hidden; }
-bool Node::parent() const { return m_Parent; }
-bool Node::self() const { return m_Self; }
+bool Node::hidden() const {
+    return m_Hidden;
+}
+bool Node::parent() const {
+    return m_Parent;
+}
+bool Node::self() const {
+    return m_Self;
+}
 
-void Node::traverse(std::string depth_denotion) const {
+void Node::traverse(std::string depth_denotation) const {
     if (m_Type == NodeType::DIRECTORY_NODE)
-        m_Data.directory->traverse(depth_denotion);
+        m_Data.directory->traverse(depth_denotation);
 }
 
 // <------Destructor-------->
@@ -64,7 +76,8 @@ Node::~Node() {
             break;
 
         case NodeType::DIRECTORY_NODE:
-            if (!m_Parent && !m_Self) delete m_Data.directory;
+            if (!m_Parent && !m_Self)
+                delete m_Data.directory;
             break;
 
         default:

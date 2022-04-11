@@ -19,7 +19,8 @@ std::string FS::getHashedPassword(const std::string& user) {
 
 void data_to_file(std::ofstream& f_out, const Directory* subroot, int tabs) {
     std::string pre_tabs = "";
-    for (int i = 0; i < tabs; ++i) pre_tabs += "\t";
+    for (int i = 0; i < tabs; ++i)
+        pre_tabs += "\t";
     f_out << pre_tabs << subroot->get_dirname() << FS::NTS << "D\n";
     for (Node* node : *subroot) {
         if (node->parent() || node->self()) {
@@ -58,7 +59,8 @@ Node* file_to_data(std::ifstream& f_in, Directory* parent, int tabs) {
     Directory* sub_tree_root = new Directory(parent, buffer);
     while (true) {
         Node* child = file_to_data(f_in, sub_tree_root, tabs + 1);
-        if (child == nullptr) break;
+        if (child == nullptr)
+            break;
         sub_tree_root->push_node(child);
     }
 
@@ -77,7 +79,8 @@ Directory* FS::Parser(const std::string& user) {
     return root;
 }
 
-void FS::Save(const std::string& user, const std::string& hash,
+void FS::Save(const std::string& user,
+              const std::string& hash,
               const Directory* root) {
     std::ofstream f_out("Data/" + user + FS::EXT, std::ios::out);
     f_out << hash << "\n";
