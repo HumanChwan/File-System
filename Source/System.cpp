@@ -8,6 +8,7 @@ System::System() {
     present = m_Root;
     m_Live = true;
     m_Username = "<!Temp User>";
+    m_Computer = "fs-system";
     m_Logged_in = false;
 }
 
@@ -15,7 +16,7 @@ void System::init() {
     Out();
 
     while (m_Live) {
-        Out::Base_Prompt(get_user(), present->path());
+        Out::Base_Prompt(get_user(), m_Computer, present->path());
         std::string command;
         getline(std::cin, command);
         Command new_command(this, command);

@@ -21,7 +21,7 @@ class Out {
     Out();
 
     static void Error(const std::string& message);
-    static void Base_Prompt(const std::string& state, const std::string& path);
+    static void Base_Prompt(const std::string& user, const std::string& computer, const std::string& path);
     static void Log(const std::string& message);
     static void Interactive(const std::string& message);
     static void Default();

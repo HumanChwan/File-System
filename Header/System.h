@@ -13,6 +13,7 @@ class System {
     Directory* m_Root;
     bool m_Live;
     std::string m_Username;
+    std::string m_Computer;
     std::string m_Hashed_password;
     bool m_Logged_in;
 
